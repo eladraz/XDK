@@ -1,0 +1,31 @@
+/*
+ * Interface PcPlayer
+ *
+ * Control functions which handles wave-out (PCM) stream.
+ * The streams is uses mainly for transfer to the Sound-Blaster
+ *
+ * Author: Elad Raz <e@eladraz.com>
+ */
+[
+    // The IOCTL_PLAYER_xxx  prefix
+    prefix("PLAYER"),
+    helpstring("Control functions which handles wave-out (PCM) stream")
+]
+interface PcPlayer
+{
+    // Get version
+    comment("Return the version of the interface");
+    uint32 getVersion();
+
+    // Starts playing the queued buffer
+    comment("Starts playing the queued buffer");
+    void play();
+
+    // Stop playing the buffer. The stream is paused.
+    comment("Stop playing the buffer. The stream is paused.");
+    void stop();
+
+    // Empty the queued buffer and reset all pointers. Stop playing if active
+    comment("Empty the queued buffer and reset all pointers. Stop playing if active.");
+    void reset();
+};

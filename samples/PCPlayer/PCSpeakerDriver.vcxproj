@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Kernel Debug|Win32">
+      <Configuration>Kernel Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Kernel Release|Win32">
+      <Configuration>Kernel Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A1F2ADE9-4327-4B59-A17C-ABC2CE82A001}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">bin\sysDebug\PCSpeakerDriver\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">bin\objDebug\PCSpeakerDriver\</IntDir>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">false</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">bin\sysRelease\PCSpeakerDriver\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">bin\objRelease\PCSpeakerDriver\</IntDir>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">false</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">false</LinkIncremental>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">.sys</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">.sys</TargetExt>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">false</GenerateManifest>
+    <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">false</EmbedManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">false</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHa /GX /Zel -cbstring %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(DDK_PATH)\inc\api;$(DDK_PATH)\inc\crt;$(DDK_PATH)\inc\ddk;$(DDK_PATH)\inc\ddk\wxp;$(DDK_PATH)\lib\wxp;$(XDK_PATH)\Include;$(XSTL_PATH)\Include;.;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DRIVER;WIN32;_DEBUG;XSTL_UNICODE;UNICODE;_X86_;i385;STD_CALL;CONDITION_HANDLING;_KERNEL;XPDDK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/DRIVER /subsystem:native,1.1 /osversion:5.0 /SECTION:INIT,d /FULLBUILD /debugtype:cv /align:0x80 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>ntoskrnl.lib;libcntpr.lib;wdm.lib;hal.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)PCSpeakerDriver.sys</OutputFile>
+      <Version>5.0</Version>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(DDK_PATH)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)PCSpeakerDriver.pdb</ProgramDatabaseFile>
+      <SubSystem>NotSet</SubSystem>
+      <StackReserveSize>262144</StackReserveSize>
+      <StackCommitSize>4096</StackCommitSize>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x10000</BaseAddress>
+      <ImportLibrary>
+      </ImportLibrary>
+      <RandomizedBaseAddress>
+      </RandomizedBaseAddress>
+      <MergeSections>_PAGE=PAGE%3b_TEXT=.text%3b.rdata=.text</MergeSections>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AllowIsolation>
+      </AllowIsolation>
+      <EnableUAC>false</EnableUAC>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHa /GX %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>.;$(DDK_PATH)\inc\api;$(DDK_PATH)\inc\crt;$(DDK_PATH)\inc\ddk;$(DDK_PATH)\inc\ddk\wxp;$(DDK_PATH)\lib\wxp;$(XDK_PATH)\Include;$(XSTL_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DRIVER;WIN32;NDEBUG;XSTL_UNICODE;UNICODE;_X86_;i385;STD_CALL;CONDITION_HANDLING;_KERNEL;XPDDK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/DRIVER /subsystem:native,1.10 /osversion:5.00  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>ntoskrnl.lib;libcntpr.lib;wdm.lib;hal.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)PCSpeakerDriver.sys</OutputFile>
+      <Version>5.0</Version>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(DDK_PATH)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)PCSpeakerDriver.pdb</ProgramDatabaseFile>
+      <SubSystem>NotSet</SubSystem>
+      <StackReserveSize>262144</StackReserveSize>
+      <StackCommitSize>4096</StackCommitSize>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <EntryPointSymbol>DriverEntry</EntryPointSymbol>
+      <SetChecksum>true</SetChecksum>
+      <BaseAddress>0x10000</BaseAddress>
+      <ImportLibrary>
+      </ImportLibrary>
+      <RandomizedBaseAddress>
+      </RandomizedBaseAddress>
+      <MergeSections>_PAGE=PAGE%3b_TEXT=.text%3b.rdata=.text</MergeSections>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AllowIsolation>
+      </AllowIsolation>
+      <EnableUAC>false</EnableUAC>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="driver\PcSpeakerCode.cpp" />
+    <ClCompile Include="driver\PcSpeakerDevice.cpp" />
+    <ClCompile Include="driver\PcSpeakerDriver.cpp" />
+    <ClCompile Include="driver\PcSpeakerServer.cpp" />
+    <ClCompile Include="..\..\Source\XDK\driverEntry.cpp" />
+    <ClCompile Include="common\const.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="driver\PcSpeakerDevice.h" />
+    <ClInclude Include="driver\PcSpeakerDriver.h" />
+    <ClInclude Include="driver\PcSpeakerServer.h" />
+    <ClInclude Include="driver\driverConsts.h" />
+    <ClInclude Include="common\PcSpeakerIoctl.h" />
+    <ClInclude Include="common\const.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\xStl\xStl.vcxproj">
+      <Project>{7e3f7378-91a7-47eb-8a3d-efeff99096e0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\xdk.vcxproj">
+      <Project>{deef2bcf-5f12-4ac1-879e-78b1851500f8}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

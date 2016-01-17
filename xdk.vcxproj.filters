@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\assert.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\atexit.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\consoleDevice.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\consoleDeviceControls.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\device.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driver.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driverEntry.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driverFactory.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\kernel.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehlib.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehlibcpp.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehVectorConstructor.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehVectorDestructor.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\exitCounter.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\libCPP.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\trace.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\unicodeString.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\xdkTrace.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\IoctlDispatcher.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\interruptSpinLock.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\processorLock.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\processorUtil.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\ResourceLock.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\utils.cpp">
+      <Filter>Sources\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\MemorySuperblockHeapManager.cpp">
+      <Filter>Sources\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\SmallMemoryHeapManager.cpp">
+      <Filter>Sources\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\SuperiorMemoryManager.cpp">
+      <Filter>Sources\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\frameHandler.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\NTDDKthrowException.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\typeInfo.cpp">
+      <Filter>Sources\ehlib</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\ProcessorsThread.cpp">
+      <Filter>Sources\hooker</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\ProcessorsThreadManager.cpp">
+      <Filter>Sources\hooker</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\SafeMemoryAccesser.cpp">
+      <Filter>Sources\hooker</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\descriptorTable.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\Intel386Utils.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\MemoryManager.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\segments.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\StackObject386.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\tss.cpp">
+      <Filter>Sources\hooker\Processors\ia32</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\Patchers\CodePatcher386.cpp">
+      <Filter>Sources\hooker\Processors\ia32\Patchers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\PageTable\PageTable386.cpp">
+      <Filter>Sources\hooker\Processors\ia32\PageTable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\PageTable\Win32PageTable386.cpp">
+      <Filter>Sources\hooker\Processors\ia32\PageTable</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtRouterHooker.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtTableHooker.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\InterruptException.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\InterrutpListener.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\hookIdt.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\idt.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtHookerManager.cpp">
+      <Filter>Sources\hooker\Processors\ia32\idt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Locks\GlobalSystemLock.cpp">
+      <Filter>Sources\hooker\Locks</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\XDK\hooker\Locks\RecursiveProtector.cpp">
+      <Filter>Sources\hooker\Locks</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\atexit.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDevice.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDeviceControls.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDeviceIoctl.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driverFactory.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\device.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driver.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driverException.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\ehlib\ehlib.h">
+      <Filter>Includes\ehlib</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\ehlib\ehlibcpp.h">
+      <Filter>Includes\ehlib</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\exitCounter.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\MemoryLockableObject.h">
+      <Filter>Includes\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\MemorySuperblockHeapManager.h">
+      <Filter>Includes\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SmallMemoryHeapManager.h">
+      <Filter>Includes\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SuperiorMemoryManager.h">
+      <Filter>Includes\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SuperiorMemoryManagerInterface.h">
+      <Filter>Includes\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\utils.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\ResourceLock.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\interruptSpinLock.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\IoctlDispatcher.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\IoctlListener.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\processorUtil.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\processorLock.h">
+      <Filter>Includes\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\undocumentedStructs.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\undocumented.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\libCPP.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\kernel.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\unicodeString.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\xdkTrace.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\xdkTraceSingleton.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\bugcheck.h" />
+    <ClInclude Include="Include\XDK\hooker\CodePatcher.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\MemoryManager.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\ProcessorsThread.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\ProcessorsThreadManager.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\SafeMemoryAccesser.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\StackObject.h">
+      <Filter>Includes\hooker</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\descriptorTable.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\eflags.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\Intel386Utils.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\registers.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\segments.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\tss32.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\Win386Lock.h">
+      <Filter>Includes\hooker\Processors\ia32</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtTableHooker.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\InterruptException.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\InterruptListener.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\hookIdt.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\idt.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtHookerManager.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtRouterHooker.h">
+      <Filter>Includes\hooker\Processors\ia32\idt</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\PageTable\PageTable386.h">
+      <Filter>Includes\hooker\Processors\ia32\PageTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\PageTable\Win32PageTable386.h">
+      <Filter>Includes\hooker\Processors\ia32\PageTable</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Locks\GlobalSystemLock.h">
+      <Filter>Includes\hooker\Locks</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\XDK\hooker\Locks\RecursiveProtector.h">
+      <Filter>Includes\hooker\Locks</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{d74aa28c-ef32-4b75-bf2d-0844cb5b0646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes">
+      <UniqueIdentifier>{a226ecb2-939d-4b8a-b123-2a87937d5766}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\utils">
+      <UniqueIdentifier>{343f2b30-365d-4da9-9163-19009f42628b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\memory">
+      <UniqueIdentifier>{311bc6ff-31b5-4b07-9f11-d9b5c07d157d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\ehlib">
+      <UniqueIdentifier>{f9cc62fe-c614-40e5-b71d-8eefcbef39cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\memory">
+      <UniqueIdentifier>{c9f6bbd7-454d-4454-ad0a-3523912601b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\ehlib">
+      <UniqueIdentifier>{3de435a0-ec19-4052-9151-12d558b92450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\utils">
+      <UniqueIdentifier>{ae203da9-518f-4952-9c4a-db6134611934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker">
+      <UniqueIdentifier>{1634c9c9-160c-4bf2-aab1-951f37eb8b76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker\Processors">
+      <UniqueIdentifier>{a576e5c5-2f81-4cab-bc07-23650aa2c83b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker\Processors\ia32">
+      <UniqueIdentifier>{9072ec05-764d-4541-8ada-e04ab325b22a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker\Processors\ia32\idt">
+      <UniqueIdentifier>{1671460f-c990-44b9-b24c-7c30f6dfe20e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker\Processors\ia32\PageTable">
+      <UniqueIdentifier>{ad6ea53c-ccba-4668-8170-95dce5e52b0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\hooker\Locks">
+      <UniqueIdentifier>{b844c8b3-2851-4657-9dcc-e3d4f2ec511e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker">
+      <UniqueIdentifier>{bb8d4691-a2aa-419f-8e94-8179b482f27d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Processors">
+      <UniqueIdentifier>{011b479a-2047-4cdf-a6d9-5300adea899f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Processors\ia32">
+      <UniqueIdentifier>{9163c84a-50fe-430b-b01e-5da8efe4503e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Processors\ia32\Patchers">
+      <UniqueIdentifier>{9e6fe0dc-6279-4fc5-b30f-9e906302bace}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Processors\ia32\PageTable">
+      <UniqueIdentifier>{3610e35f-81dc-4046-8780-5f699d361c80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Processors\ia32\idt">
+      <UniqueIdentifier>{9f18df00-0571-4728-9732-112fc36e8211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\hooker\Locks">
+      <UniqueIdentifier>{d8e70de6-e4fa-4e7e-ae5f-a58908c6e44f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

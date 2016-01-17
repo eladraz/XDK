@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(XDK_PATH)\Source\Loader\device.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Loader\NTDeviceLoader.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Loader\NTloader.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Loader\Win32Command.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="$(XDK_PATH)\Source\Loader\console\consolePooler.cpp">
+      <Filter>Sources\console</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\device.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\NTDeviceLoader.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\loader.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\command.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\deviceException.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="$(XDK_PATH)\Include\Loader\console\consolePooler.h">
+      <Filter>Includes\console</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{47df7909-fdbb-425f-8306-2a61b7559f18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes">
+      <UniqueIdentifier>{89723c32-85f7-4885-80f8-8b385d1881c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\console">
+      <UniqueIdentifier>{f9d5784e-068e-40b6-a09f-b88cf762980e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Includes\console">
+      <UniqueIdentifier>{e7d8a3bf-5742-4e30-9c3c-de7264d42347}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,476 @@
+<div dir=3D"ltr"><div class=3D"markdown-here-wrapper" id=3D"markdown-here-wrapper-292694" style><h1 id=3D"purpose" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Purpose</h1>
+<p style=3D"margin:1.2em 0px!important">The main purpose of this article is to show programmers that they have the ability to use full-featured C++ within Microsoft Windows kernel modules, and to help programmers understand how C++ can be used in this way. To this end, we will compare different types of compilers and embedded compilers in terms of exception handling. This article focuses on the 32-bit Microsoft CL compiler (an article focusing on the 64-bit version is currently being developed).  </p>
+
+<p style=3D"margin:1.2em 0px!important"><em>This article refers to the free open-source libraries xStl and XDK <strong>(TODO! Links)</strong>, which implement C++ and allow programs to write C++ kernel mode drivers.</em></p>
+
+<h1 id=3D"overview" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Overview</h1>
+<p style=3D"margin:1.2em 0px!important"><a href="http://en.wikipedia.org/wiki/C++">C++</a> is a great extension to the C programming language. Anyone who writes object-oriented code in C++ knows the power of this popular programming language. The ability to implement design patterns and the availability of STL with classes simplify the programmer&rsquo;s life. API exports (private/public), code reuse and virtual functions make C++ code much more readable and easy to use.</p>
+
+<p style=3D"margin:1.2em 0px!important">There are many free compilers for C++ and each compiler implements object-oriented features in a slightly different way. The main compiler for Windows operating systems is the Microsoft C++ compiler CL.EXE. This compiler supports user-mode application, kernel device drivers (&ldquo;DDK&rdquo;) and Windows CE/Windows Mobile (&ldquo;build&rdquo;). It also has a unique implementation for C++: some of the functionality is implemented on top of libc commands (&ldquo;atexit()&rdquo;, for example) and other functionality (exception handling) uses kernel WIN32 APIs.</p>
+
+<p style=3D"margin:1.2em 0px!important">Unfortunately, in their famous document &ldquo;<a href="http://msdn.microsoft.com/en-us/windows/hardware/gg487420">C++ for Kernel Mode Drivers: Pros and Cons</a>&ldquo;, Microsoft says that C++ <strong>is not supported</strong> in kernel development. Microsoft states that although they do not forbid the use of C++, they suggest using &ldquo;Super C&rdquo; rather than a fully functional C++ module.</p>
+
+<p style=3D"margin:1.2em 0px!important">Consequently, when programmers try to use C++ within a kernel module, (.sys) immediately finds a linker error with the following unresolved symbols:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">Unresolved symbols:
+atexit()
+__CxxFrameHandler
+__CxxFrameHandler3
+__CxxThrowException@8
+??_M@YGXPAXIHP6EX0@Z@Z
+??_L@YGXPAXIHP6EX0@Z1@Z
+type_info class functions
+</code></pre><p style=3D"margin:1.2em 0px!important">However, it is possible to use C++ within a kernel module. This article provides detailed software guidelines for writing a fully functional C++ kernel module using MS DDK. The information in this document is also valid for several other compilers in various operating systems; however, some adjustments must be made to the code provided.</p>
+
+<h1 id=3D"-super-c-compiler-generated-code" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">&ldquo;Super C&rdquo;: Compiler-Generated Code</h1>
+<p style=3D"margin:1.2em 0px!important">C++ adds many features to ANSI C (C90), all of which are implemented via the compiler-generated code. These features are okay for use specifically within Windows kernel modules and in general for use with every operating system. Here are a few of the well-known added features:</p>
+
+<ul style=3D"margin:1.2em 0px;padding-left:2em">
+<li style=3D"margin:0.5em 0px"><p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"><strong>Language Add-Ons</strong><br>Language-specific changes, such as declaring local variables in the middle of a function, are valid:  </p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> fooBar()
+{
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> x;
+x =3D <span class=3D"number">5</span>;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> y; <span class=3D"comment" style=3D"color:rgb(117,113,94)">// No valid in C!</span>
+y =3D x*<span class=3D"number">2</span>;
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"> The compiler-generated code creates &ldquo;fooBar&rdquo; with 8 bytes of locals. There isn&rsquo;t anything special here.  </p>
+</li>
+<li style=3D"margin:0.5em 0px"><p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"><strong>Templates</strong><br>Consider the following code:  </p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">template</span> &lt;<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">class</span> ITR_BD&gt;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> bubbleSort(ITR_BD begin, ITR_BD end)
+{
+  <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">if</span> (begin =3D=3D end)
+      <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span>;
+  ITR_BD last =3D end - <span class=3D"number">1</span>;
+  ITR_BD prev_j =3D end;
+  <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">if</span> (begin =3D=3D last)
+      <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span>;
+  <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">for</span> (ITR_BD i =3D begin + <span class=3D"number">1</span>; i !=3D last; i++)
+      <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">for</span> (ITR_BD j =3D last; j !=3D (i-<span class=3D"number">1</span>); j--)
+      {
+          prev_j =3D j - <span class=3D"number">1</span>;
+          <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">if</span> (*prev_j &gt; *j)
+          {
+              t_swap(*j, *prev_j);
+          }
+      }
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"> The compiler will generate instances of &ldquo;bubbleSort&rdquo; for every usage of the function (for example, calling &ldquo;bubbleSort&rdquo; with <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">List&lt;String&gt;::iterator</code> and <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">List&lt;int&gt;::iterator</code> per usage for each of  these &ldquo;T&rdquo; functions per type). The function&rsquo;s duplication does not add any special complexity to the generated code, so calling the above code will generate &ldquo;bubbleSort&rdquo; of <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">List&lt;String&gt;::iterator</code> and <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">List&lt;int&gt;::iterator</code>:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">List&lt;String&gt; dictionary;
+bubbleSort(dictionary.begin(), dictionary.end());
+List&lt;<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span>&gt; grades;
+bubbleSort(grades.begin(), grades.end())
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important">In the disassemble code there are two implementations of the &ldquo;bubbleSort&rdquo;: one with the &ldquo;int&rdquo; iterator and one with the &ldquo;string&rdquo; iterator. Operator &ldquo;&gt;&rdquo; will trigger &ldquo;int &gt; int&rdquo; and operator &ldquo;&gt;&rdquo; of class string (which implements as &ldquo;strcmp&rdquo; and &ldquo;operator &gt;&rdquo;).</p>
+
+</li>
+<li style=3D"margin:0.5em 0px"><p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"><strong>Classes: Members, Functions and Access Control</strong>  </p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">class</span> person
+{
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">public</span>:
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> getAge() <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">const</span>;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">private</span>:
+<span class=3D"built_in" style=3D"color:rgb(166,226,46)">string</span> name;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> age;
+};
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important">When you call a function inside a class, the compiler adds an extra argument (&ldquo;this&rdquo;) which points to the class&rsquo; first member. All of the class&rsquo; other members appear in the memory after the first argument, in consecutive order. In Microsoft compiler, ECX register is &ldquo;this&rdquo; register. Some compilers use an extra argument for class context.  </p>
+
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"> The location of the class is also very important. Class can be instantiated in a few ways:  </p>
+<ul style=3D"margin:1.2em 0px;padding-left:2em;margin:0px;padding-left:1em">
+<li style=3D"margin:0.5em 0px"><p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"><strong>On stack as a local</strong>:  </p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">Person p;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> age =3D p.getAge();  <span class=3D"comment" style=3D"color:rgb(117,113,94)">// ECX will be pointed to EBP-8 (local)</span>
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important">There isn&rsquo;t anything to worry about when using classes in this way. All of the memory is flat on the stack. Calling a class&rsquo; function is equal to calling a function and passing a stack pointer as an argument.  </p>
+
+</li>
+<li style=3D"margin:0.5em 0px"><p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important"><strong>On .data or .bss sections as global</strong>:  </p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">Person p;
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> fooBar()
+{
+p.getAge();
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important;margin:0.5em 0px!important">There are two issues with using class as global:  </p>
+<ol style=3D"margin:1.2em 0px;padding-left:2em;margin:0px;padding-left:1em">
+<li style=3D"margin:0.5em 0px">The class memory is located in the &ldquo;.bss&rdquo; or &ldquo;.data&rdquo; section. Extra care is needed in Windows kernel modules, since by default this memory is pageable. Accessing this memory from Higher IRQL can cause the famous blue screen: IRQL_NOT_LESS_OR_EQUAL.</li>
+
+<li style=3D"margin:0.5em 0px">The calling of the constructor is not trivial; Microsoft compiler uses a special symbol in order to call global constructors. <strong>See: <a href="#.CRT$XCA">.CRT$XCA</a>.</strong>    </li>
+</ol>
+</li>
+</ul>
+<ul style=3D"margin:1.2em 0px;padding-left:2em;margin:0px;padding-left:1em">
+<li style=3D"margin:0.5em 0px"><strong>On heap using &ldquo;new&rdquo;</strong><br>The &ldquo;new&rdquo; operator, which we will discuss in more detail later, allocates all of the class members over the heap. <strong>See: <a href="#memoryallocation">Memory Allocation</a>.</strong> Because a kernel module contains paged and non-paged memory, accessing the class functions/members from DISPATCH level requires allocating the memory from &ldquo;NonPagedPool&rdquo;; otherwise, the class memory might be &ldquo;paged out&rdquo;.   </li>
+
+</ul>
+</li>
+</ul>
+<ul style=3D"margin:1.2em 0px;padding-left:2em">
+<li style=3D"margin:0.5em 0px"><strong>Classes and Virtual Tables</strong><br>The C++ compiler implements a class virtual table in the <strong>.data</strong> or <strong>.rdata</strong> section. Similar to objects on global memory, the type of the section needs to be changed to non-paged; otherwise, the lookup of the virtual table might fail since the page could be paged out.</li>
+
+</ul>
+<p style=3D"margin:1.2em 0px!important">So far, using C++ is pretty straightforward (with the exception of a couple of use-cases). Just keep in mind that working with DDK libraries (at least old DDKs) includes libraries that are C-oriented. To avoid <a href="http://en.wikipedia.org/wiki/Name_mangling">name mangling</a>, the inclusion of DDK headers should be wrapped using the following code:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">extern</span> <span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;C&quot;</span> {
+   <span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#include &lt;ddk/ntddk.h&gt;</span>
+   <span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#include &lt;ntdef.h&gt;</span>
+   <span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#include &lt;basetsd.h&gt;</span>
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important"><a name="memoryallocation"></a></p>
+<h1 id=3D"memory-allocation" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Memory Allocation</h1>
+<p style=3D"margin:1.2em 0px!important">C++ declares global &ldquo;operator new&rdquo;, &ldquo;operator new[]&rdquo;, &ldquo;operator delete&rdquo; and &ldquo;operator delete[]&rdquo;. These operators allocate memory (native libc implementation is with &ldquo;malloc()&rdquo; API). <strong>The constructor is called by the compiler.</strong>  </p>
+
+<p style=3D"margin:1.2em 0px!important">In a kernel mode driver, it is better to implement global &ldquo;operator new&rdquo; like this:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> * __cdecl <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">operator</span> <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">new</span>(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">unsigned</span> <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> cbSize)
+{
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> ExAllocatePool(NonPagedPool, cbSize);
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">Notice that we always return non-paged memory. This approach assumes that, usually, class memory is small (members) and large memory pools will be handled by a programmer with more sophisticated APIs (which allow the memory to be paged or mapped into a hardware device).</p>
+
+<p style=3D"margin:1.2em 0px!important">The following code:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> fooBar()
+{
+     Person p =3D <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">new</span> Person(<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;Razi&quot;</span>, <span class=3D"number">30</span>);
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">&hellip; results in the following disassemble:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">push    8
+call    operator_new
+add     esp, 4
+mov     [ebp-0C], eax
+cmp     [ebp-0C], 0
+jz      @no_memory_jump
+
+mov     ecx, [ebp-0C]
+push    30
+push    offset &quot;Razi&quot;
+call    Person::Person
+mov     [ebp-04], eax
+jmp     cont
+
+no_memory_jump:
+mov     [ebp-04], 0
+
+cont:
+</code></pre><p style=3D"margin:1.2em 0px!important">It&rsquo;s easy to see that the compiler invokes a call to &ldquo;operator new&rdquo;, tests the result value and only then calls to the constructor (the class offset is passed via ECX).</p>
+
+<p style=3D"margin:1.2em 0px!important"><a name=".CRT$XCA"></a></p>
+<h1 id=3D"global-object-constructor-crt-xca-" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Global-Object Constructor (.CRT$XCA)</h1>
+<p style=3D"margin:1.2em 0px!important">As seen in &ldquo;Super C&rdquo;, defining class in a global namespace is okay. ECX will be pointed out to the <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">.data</code> section, and calling functions are similar depending on whether the object is on local or on heap.  </p>
+
+<p style=3D"margin:1.2em 0px!important">The main problem with globals occurs when the constructor is invoked. With locals or heap variables, the constructor is explicitly called; however, with globals it is up to the framework to call all of the constructors before calling the &ldquo;main&rdquo; function.<br>
+Microsoft uses two compiler symbols (&ldquo;.CRT$XCA&rdquo; and &ldquo;.CRT$XCZ&rdquo;) to mark all &ldquo;constructor wrapper&rdquo; functions to be invoked. The &ldquo;constructor wrapper&rdquo; functions have a <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">void (*)()</code> prototype and look like this:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">gPglobalConstructor:
+   mov  ecx, gPerson
+   push 30
+   push offset &quot;Razi&quot;
+   call Person::Person
+   ret
+</code></pre><p style=3D"margin:1.2em 0px!important">(ASM prototype of &ldquo;constructor wrapper&rdquo; function)</p>
+<p style=3D"margin:1.2em 0px!important">In a kernel module, the main entry point (DriverEntry) should call each of these constructors. Here is a sample code from our library that actually invokes global constructors:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"comment" style=3D"color:rgb(117,113,94)">/*
+ * For static initializations the linker exports an array of functions. During
+ * the start of the driver these functions need to be called.
+ * The DriverEntry must call initialize() function to set up the data structure
+ * needed for the system.
+ *
+ * These values must be declared inside a single .OBJ file.
+ */</span>
+<span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#pragma data_seg(&quot;.CRT$XCA&quot;)</span>
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> (*___StartInitCalls__[<span class=3D"number">1</span>])(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span>)=3D{<span class=3D"number">0</span>};
+<span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#pragma data_seg(&quot;.CRT$XCZ&quot;)</span>
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> (*___EndInitCalls__[<span class=3D"number">1</span>])(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span>)=3D{<span class=3D"number">0</span>};
+<span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#pragma data_seg()</span>
+
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">try</span>
+    {
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Inits all other static constructors.</span>
+        p =3D ___StartInitCalls__ + <span class=3D"number">1</span>;
+        <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">while</span> (p &lt; ___EndInitCalls__)
+        {
+            (*p)();
+            <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Check IRQL level</span>
+            <span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#ifdef _DEBUG</span>
+            <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">if</span> (cProcessorUtil::getCurrentIrql() !=3D PASSIVE_LEVEL)
+            {
+                cBugCheck::bugCheck(<span class=3D"number">0xAAA</span>, <span class=3D"number">0xDEADFACE</span>,
+                                           <span class=3D"number">0xDEADFACE</span>, getNumeric(p), <span class=3D"number">3</span>);
+            }
+            <span class=3D"preprocessor" style=3D"color:rgb(166,226,46)">#endif</span>
+            p++;
+        }
+    }
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">catch</span> (...)
+    {
+        KdPrint((<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;XDK: initialize failed.\n&quot;</span>));
+        <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> STATUS_UNSUCCESSFUL;
+    }
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">What is interesting to see is the usage of try-catch wrapping around the global constructor. In C++ it is not recommended to throw exceptions during the destructor and constructor functions, since it&rsquo;s not clear when the framework will catch them and how it will handle them. However, one big advantage of writing your own framework is that you can tell how the framework will react.</p>
+
+<h1 id=3D"singletons-destructor-call-time" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Singletons: Destructor Call Time</h1>
+<p style=3D"margin:1.2em 0px!important"><a href="http://en.wikipedia.org/wiki/Singleton_pattern">Singletons</a> are special objects that have one instance during the entire runtime process. Usually, declaring a singleton in C++ looks like this:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">class</span> MySingleton {
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">public</span>:
+    <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Return instance to only one constructed object</span>
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">static</span> MySingleton&amp; getInstance() {
+        <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">static</span> MySingleton gSingleton;
+        <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> gSingleton;
+    }
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">private</span>:
+    <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Private constructor, due to singleton object</span>
+    MySingleton();
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">The constructor is called when &ldquo;getInstance&rdquo; is first accessed. Usually, the compiler inserts a global Boolean that states whether the class constructor has been invoked. In a few extreme cases (such as two threads calling to the &ldquo;getInstance()&rdquo; function for the first time, at the same time) there exists a race condition between the construction function and the protection guard, although I have never seen a compiler that takes care of such rare race conditions.</p>
+
+<p style=3D"margin:1.2em 0px!important">Local objects are free when the scope ends (or when an exception has been thrown). The heap object destructor is called via &ldquo;delete&rdquo;. The big question here is: When will the class destructor be called? Microsoft uses libc &ldquo;<code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">atexit()</code>&ldquo; API for that, and the prototype looks like this:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> __cdecl atexit(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> (__cdecl *function)(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span>))
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">The purpose of this function is to execute all of the functions when the process terminates. In a kernel module, there isn&rsquo;t any framework that invokes a call to the registered &ldquo;atexit&rdquo; functions. The best time to call these destructors is when the device (IRP_MN_REMOVE_DEVICE callback) or the driver (&ldquo;DriverUnload&rdquo; callback) is being removed.  </p>
+
+<p style=3D"margin:1.2em 0px!important">The atexit() can be implemented with a static finite array of functions pointer or with a linked list in more advanced implementations. The following is an implementation sample of atexit, which uses a linked list and is thread safe. The &ldquo;cAtExit&rdquo; class uses dynamically allocated memory: </p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">cAtExit* cAtExit::m_instance =3D NULL;
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> cAtExit::init()
+{
+    CHECK(m_instance =3D=3D NULL);
+    m_instance =3D <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">new</span> cAtExit();
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> cAtExit::exit()
+{
+    <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Destruct objects</span>
+    getInstance().destroyObjects();
+    <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Free memory</span>
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">delete</span> m_instance;
+    m_instance =3D NULL;
+}
+
+cAtExit&amp; cAtExit::getInstance()
+{
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">if</span> (m_instance =3D=3D NULL)
+    {
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Throw exception</span>
+        XSTL_THROW(cException(EXCEPTION_FAILED));
+    }
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> *m_instance;
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> cAtExit::addFunction(ATEXITFUNC newFunction)
+{
+    cLock lock(m_atExitProtector);
+    m_atExitList.insert(newFunction);
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> cAtExit::destroyObjects()
+{
+    <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Keep the IRQL level for the constructed object at PASSIVE_LEVEL</span>
+    cList&lt;ATEXITFUNC&gt; <span class=3D"built_in" style=3D"color:rgb(166,226,46)">list</span>;
+    copyAtexitObjects(<span class=3D"built_in" style=3D"color:rgb(166,226,46)">list</span>);
+
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">for</span> (cList&lt;ATEXITFUNC&gt;::iterator i =3D list.begin();
+         i !=3D list.end();
+         i++)
+    {
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Safe call to the destructor.</span>
+        XSTL_TRY
+        {
+            (*i)();
+        }
+        XSTL_CATCH_ALL
+        {
+            TRACE(TRACE_VERY_HIGH, <span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;ATEXIT: Destructor throw exception!&quot;</span>);
+        }
+    }
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> cAtExit::copyAtexitObjects(cList&lt;ATEXITFUNC&gt;&amp; <span class=3D"built_in" style=3D"color:rgb(166,226,46)">list</span>)
+{
+    cLock lock(m_atExitProtector);
+    <span class=3D"built_in" style=3D"color:rgb(166,226,46)">list</span> =3D m_atExitList;
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> __cdecl atexit(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span> (__cdecl *function)(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">void</span>))
+{
+    cAtExit::getInstance().addFunction(function);
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">true</span>;
+}
+</code></pre>
+<h1 id=3D"exception-handling" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">Exception Handling</h1>
+<p style=3D"margin:1.2em 0px!important">Exception handling can be implemented in many shapes and forms. Most compilers (except MS compiler) implement exception handling in <strong>software only</strong>. Microsoft compiler behaves a little differently- it rides on top of the <a href="http://en.wikipedia.org/wiki/Structured_Exception_Handling#Structured_Exception_Handling">SEH</a> exception mechanism. This causes many issues when using exceptions inside a kernel module.</p>
+
+<h2 id=3D"what-is-structured-exception-handling-seh-" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.4em;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:rgb(204,204,204)">What Is Structured Exception Handling (SEH)?</h2>
+
+<p style=3D"margin:1.2em 0px!important">Here is a sample application that uses SEH and captures a divide by zero fault:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"><span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> filter(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">unsigned</span> <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> code, <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">struct</span> _EXCEPTION_POINTERS *ep)
+{
+    printf(<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;Filter has been called, code: %X, EIP: %X\n&quot;</span>, code, ep-&gt;ContextRecord-&gt;Eip);
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> EXCEPTION_EXECUTE_HANDLER;
+}
+
+<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> main(<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> argc, <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">char</span>** argv)
+{
+   __<span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">try</span>
+   {
+      <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> i =3D <span class=3D"number">0</span>;
+      printf(<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;Divide by zero...\n&quot;</span>);
+      <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">int</span> a =3D <span class=3D"number">5</span> / i;
+      printf(<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;How did we get here?&quot;</span>);
+   }
+   __except(filter(GetExceptionCode(), GetExceptionInformation()))
+   {
+       printf(<span class=3D"string" style=3D"color:rgb(166,226,46)">&quot;Exception was executed %X\n&quot;</span>, GetExceptionCode());
+   }
+
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">return</span> <span class=3D"number">0</span>;
+}
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">The output of the execution is:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">Divide by zero...
+Filter has been called, code: C0000094, EIP: 53803
+Exception was executed C0000094
+</code></pre><p style=3D"margin:1.2em 0px!important">The exception code was generated in the kernel. Exception code: C0000094 is <a href="http://nologs.com/ntstatus.html">STATUS_INTEGER_DIVIDE_BY_ZERO</a>. The EIP (instruction pointer) is the virtual memory location of the assembler instruction &ldquo;DIV&rdquo;.</p>
+
+<p style=3D"margin:1.2em 0px!important">SEH has two types of exceptions: software exceptions raised by &ldquo;<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms680552(v=3Dvs.85).aspx">RaiseException</a>&ldquo; and exceptions triggered by fault in the kernel (such as a memory violation, divided by zero, errors with floats, etc.).</p>
+
+<h2 id=3D"seh-how-is-it-implemented-fs-0-" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.4em;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:rgb(204,204,204)">SEH: How Is It Implemented? (fs:[0])</h2>
+
+<p style=3D"margin:1.2em 0px!important">SEH uses KPCR structure. The KPCR structure can be shown by <a href="http://msdn.microsoft.com/en-us/windows/hardware/gg463009">WinDbg</a> and by adding a symbol server:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">0:000&gt; dt _KPCR
+ntdll!_KPCR
+   +0x000 NtTib            : _NT_TIB
+   +0x000 GdtBase          : Ptr64 _KGDTENTRY64
+   +0x008 TssBase          : Ptr64 _KTSS64
+   +0x010 UserRsp          : Uint8B
+   +0x018 Self             : Ptr64 _KPCR
+   +0x020 CurrentPrcb      : Ptr64 _KPRCB
+   +0x028 LockArray        : Ptr64 _KSPIN_LOCK_QUEUE
+   +0x030 Used_Self        : Ptr64 Void
+   +0x038 IdtBase          : Ptr64 _KIDTENTRY64
+   +0x040 Unused           : [2] Uint8B
+   +0x050 Irql             : UChar
+   +0x051 SecondLevelCacheAssociativity : UChar
+   +0x052 ObsoleteNumber   : UChar
+   +0x053 Fill0            : UChar
+   +0x054 Unused0          : [3] Uint4B
+   +0x060 MajorVersion     : Uint2B
+   +0x062 MinorVersion     : Uint2B
+   +0x064 StallScaleFactor : Uint4B
+   +0x068 Unused1          : [3] Ptr64 Void
+   +0x080 KernelReserved   : [15] Uint4B
+   +0x0bc SecondLevelCacheSize : Uint4B
+   +0x0c0 HalReserved      : [16] Uint4B
+   +0x100 Unused2          : Uint4B
+   +0x108 KdVersionBlock   : Ptr64 Void
+   +0x110 Unused3          : Ptr64 Void
+   +0x118 PcrAlign1        : [24] Uint4B
+   +0x180 Prcb             : _KPRCB
+0:000&gt; dt _NT_TIB
+ntdll!_NT_TIB
+   +0x000 ExceptionList    : Ptr64 _EXCEPTION_REGISTRATION_RECORD
+   +0x008 StackBase        : Ptr64 Void
+   +0x010 StackLimit       : Ptr64 Void
+   +0x018 SubSystemTib     : Ptr64 Void
+   +0x020 FiberData        : Ptr64 Void
+   +0x020 Version          : Uint4B
+   +0x028 ArbitraryUserPointer : Ptr64 Void
+   +0x030 Self             : Ptr64 _NT_TIB
+</code></pre><p style=3D"margin:1.2em 0px!important">The KPCR in Win32 platforms is mapped at 0xFFDFF120 (kernel) and is mapped to segment FS, to allow access for user-mode threads. All Windows threads have a unique KPCR. During the context-switch, Windows also switches this memory region.</p>
+
+<p style=3D"margin:1.2em 0px!important">SEH rides on the first pointer of NT_TIB: the exception list. Each function that uses SEH has a prologue that looks like this:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">push    ebp
+mov     ebp, esp      ; Fixing the base stack pointer
+
+; Pushing the exception-handling stack
+push    FFFFFFFF
+push    offset dword_63A4FB
+mov     eax, large fs:0
+push    eax
+push    ecx
+
+sub     esp, 1C       ; Prepare place for locals
+
+; Change exception-handling list into current stack
+lea     eax, [ebp+var_C]
+mov     large fs:0, eax
+</code></pre><p style=3D"margin:1.2em 0px!important">The SEH uses the first two arguments that FS:[0] points to:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">push    offset dword_63A4FB
+mov     eax, large fs:0
+push    eax
+</code></pre><ul style=3D"margin:1.2em 0px;padding-left:2em">
+<li style=3D"margin:0.5em 0px">The previous handler (m_previousHandler), which points to the previous chain block in the exception linked list.</li>
+<li style=3D"margin:0.5em 0px">The exception handler, which will be called upon once an exception occurs. The operating system is responsible for pushing four arguments.</li>
+</ul>
+<p style=3D"margin:1.2em 0px!important">The third argument, which is always 0xFFFFFFFF, is a placeholder that I have named <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">trylevel</code> (the position of the stack inside nested <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">try</code> blocks). Once an exception is raised, the operating system pushes the following arguments to the exception handler:</p>
+
+<ul style=3D"margin:1.2em 0px;padding-left:2em">
+<li style=3D"margin:0.5em 0px">_EXCEPTION_RECORD &ndash; A well-documented structure that includes the ExceptionCode and the ExceptionAddress. <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">GetExceptionCode()macro</code> uses this record.</li>
+
+<li style=3D"margin:0.5em 0px">Exception frame &ndash; A direct pointer to the FS:[0] chain.</li>
+<li style=3D"margin:0.5em 0px">_CONTEXT &ndash; Holds the registers at the time of the exception.</li>
+<li style=3D"margin:0.5em 0px">_CONTEXT &ndash; Holds the registers when the dispatcher context is called.</li>
+</ul>
+<h1 id=3D"c-exceptions-over-seh-how-does-it-work-" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">C++ Exceptions Over SEH: How Does It Work?</h1>
+<p style=3D"margin:1.2em 0px!important">Microsoft Visual C++ rides on SEH implementation and adds more arguments to the fs:[0] chain. A full description of Microsoft implementation exists in the XDK library (file <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">ehlib.h</code>).</p>
+
+<p style=3D"margin:1.2em 0px!important">Most of the C++ exception-handling components are generated by the compiler, which generates a proxy function that looks like this:</p>
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)"> push    0FFFFFFFFh
+ push    offset __ehhandler$?start@cThreadedClass@@QAEXXZ
+ mov     eax, large fs:0
+
+__ehhandler$?start@cThreadedClass@@QAEXXZ proc near
+                                        ; DATA XREF: cThreadedClass::start(void)+5
+
+arg_4           =3D dword ptr  8
+
+                mov     edx, [esp+arg_4]
+                lea     eax, [edx+0Ch]
+                mov     ecx, [edx-110h]
+                xor     ecx, eax
+                call    @__security_check_cookie@4 ; __security_check_cookie(x)
+                mov     eax, offset __ehfuncinfo$?start@cThreadedClass@@QAEXXZ
+                jmp     ___CxxFrameHandler3
+__ehhandler$?start@cThreadedClass@@QAEXXZ endp
+</code></pre><p style=3D"margin:1.2em 0px!important">All of the exception-handling functions are proxy functions, which call to <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">CxxFrameHandler3</code> with the original SEH arguments and an additional argument&ndash; the function exception-handling data (<code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">EHLib::FunctionEHData</code>). In the above example, function exception-handling data is a pointer to <code style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline">ehfuncinfo$?start@cThreadedClass@@QAEXXZ</code>.</p>
+
+<p style=3D"margin:1.2em 0px!important">The above piece of code is Microsoft-specific, compiler-generated code. Other compilers produce similar codes. In order to support C++ exception handling in kernel mode, we need to implement the CxxFrameHandler function according to Microsoft compiler auto-generated code. The key to doing so is to understand the function exception-handling data:</p>
+
+<pre style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;font-size:1em;line-height:1.2em;margin:1.2em 0px"><code class=3D"language-CPP" style=3D"font-size:0.85em;font-family:Consolas,Inconsolata,Courier,monospace;margin:0px 0.15em;padding:0px 0.3em;white-space:pre-wrap;border:1px solid rgb(234,234,234);background-color:rgb(248,248,248);border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;display:inline;white-space:pre;overflow:auto;border-top-left-radius:3px;border-top-right-radius:3px;border-bottom-right-radius:3px;border-bottom-left-radius:3px;border:1px solid rgb(204,204,204);padding:0.5em 0.7em;display:block!important;display:block;padding:0.5em;background-color:rgb(39,40,34);background-repeat:initial initial;color:rgb(221,221,221)">    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">enum</span> { FRAME_HANDLER_TYPE_0 =3D <span class=3D"number">0x19930520</span> };
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">enum</span> { FRAME_HANDLER_TYPE_3 =3D <span class=3D"number">0x19930522</span> };
+
+    <span class=3D"keyword" style=3D"color:rgb(249,38,114);font-weight:bold">struct</span> FunctionEHData
+    {
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// The magic which describes MSVC6.0 compiler, </span>
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// should be equal to 19930520h</span>
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// Visual Studio 10 and Visual Studio 8 use this structure for exceptions</span>
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// should be equal to 19930522h</span>
+        uint32 m_magic;
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// The number of object destructors in the &#39;m_objectsDtor&#39;</span>
+        uint32 m_countObjectsDtor;
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// A list at size &#39;m_countObjectsDtor&#39; which represents the object tree</span>
+        ExceptionDtorFunction* m_objectsDtor;
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// The size of &#39;m_catchBlocks&#39;</span>
+        uint32 m_countCatchBlocks;
+        <span class=3D"comment" style=3D"color:rgb(117,113,94)">// The number of try-catch blocks for a function</span>
+        CatchDescriptor* m_catchBlocks;
+    };
+</code></pre>
+<p style=3D"margin:1.2em 0px!important">For each function, the compiler generates a long list of destructor functions (&ldquo;finally blocks&rdquo;), which free allocated objects as well as &ldquo;catch&rdquo; handlers. The &ldquo;catch&rdquo; handlers are very interesting because the compiler adds runtime information (RTTI) to each one, which helps the runtime library understand which &ldquo;catch&rdquo; handler is the right one to call. The important thing to understand is that the compiler implements 95% of all C++ exceptions and leaves the callback algorithm to the runtime environment.</p>
+
+<h1 id=3D"c-exception-in-kernel-mode-" style=3D"margin:1.3em 0px 1em;padding:0px;font-weight:bold;font-size:1.6em">C++ Exception in Kernel Mode? </h1>
+<p style=3D"margin:1.2em 0px!important">If we look at what the runtime library is doing (assessing &ldquo;catch&rdquo; handlers and calling them), we can see that there are no obstacles to implementing these runtime functions and simply using them in the way in which Microsoft CL compiler intended. The XDK library <strong>(TODO! Link)</strong> implements a fully C++ library including an exception-handling runtime library. That way, users can use C++ in kernel mode, including the xStl library <strong>(TODO! Link)</strong>.</p>
+
+</div></div>

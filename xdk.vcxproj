@@ -1,0 +1,230 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Kernel Debug|Win32">
+      <Configuration>Kernel Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Kernel Release|Win32">
+      <Configuration>Kernel Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DEEF2BCF-5F12-4AC1-879E-78B1851500F8}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">libDebug\xdk\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">objDebug\xdk\</IntDir>
+    <PreLinkEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">true</PreLinkEventUseInBuild>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">libRelease\xdk\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">objRelease\xdk\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHa /Zel -cbstring %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(DDK_PATH)\inc\api;$(DDK_PATH)\inc\crt;$(DDK_PATH)\inc\ddk;$(DDK_PATH)\inc\ddk\wxp;$(DDK_PATH)\lib\wxp;$(XDK_PATH)\Include;$(XSTL_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;XSTL_UNICODE;UNICODE;_X86_;i386;STD_CALL;CONDITION_HANDLING;_KERNEL;XPDDK;HOOK_IDT_DEBUG;EHLIB_SPECIAL_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+      <ForcedIncludeFiles>$(XSTL_PATH)\Include\xStl\types.h;$(XDK_PATH)\Include\xdk\kernel.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <PreLinkEvent>
+      <Message>Replacing mangling names</Message>
+      <Command>$(XDK_PATH)\bin\replace  $(IntDir)NTDDKthrowException.obj __DxxThrowException%408 __CxxThrowException%408
+$(XDK_PATH)\bin\replace  $(IntDir)ehVectorDestructor.obj ?ed%40%40YGXPAXIHP6GX0%40Z%40Z ??_M%40YGXPAXIHP6EX0%40Z%40Z
+$(XDK_PATH)\bin\replace  $(IntDir)ehVectorConstructor.obj ?ec%40%40YGXPAXIHP6GX0%40Z1%40Z ??_L%40YGXPAXIHP6EX0%40Z1%40Z
+</Command>
+    </PreLinkEvent>
+    <Lib>
+      <OutputFile>$(OutDir)xdk.lib</OutputFile>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Kernel Release|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/EHa %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <OmitFramePointers>true</OmitFramePointers>
+      <AdditionalIncludeDirectories>$(DDK_PATH)\inc\api;$(DDK_PATH)\inc\crt;$(DDK_PATH)\inc\ddk;$(DDK_PATH)\inc\ddk\wxp;$(DDK_PATH)\lib\wxp;$(XDK_PATH)\Include;$(XSTL_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;XSTL_UNICODE;UNICODE;_X86_;i386;STD_CALL;CONDITION_HANDLING;_KERNEL;XPDDK;EHLIB_SPECIAL_EXCEPTIONS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+      <ForcedIncludeFiles>$(XSTL_PATH)\Include\xStl\types.h;$(XDK_PATH)\Include\xdk\kernel.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <PreLinkEvent>
+      <Message>Replacing mangling names</Message>
+      <Command>$(XDK_PATH)\bin\replace  $(IntDir)NTDDKthrowException.obj __DxxThrowException%408 __CxxThrowException%408
+$(XDK_PATH)\bin\replace  $(IntDir)ehVectorDestructor.obj ?ed%40%40YGXPAXIHP6GX0%40Z%40Z ??_M%40YGXPAXIHP6EX0%40Z%40Z
+$(XDK_PATH)\bin\replace  $(IntDir)ehVectorConstructor.obj ?ec%40%40YGXPAXIHP6GX0%40Z1%40Z ??_L%40YGXPAXIHP6EX0%40Z1%40Z
+</Command>
+    </PreLinkEvent>
+    <Lib>
+      <OutputFile>$(OutDir)xdk.lib</OutputFile>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\assert.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\atexit.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\device.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driver.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driverEntry.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\driverFactory.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\kernel.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\libCPP.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\trace.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\unicodeString.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\xdkTrace.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\consoleDevice.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\consoleDeviceControls.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\exitCounter.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\interruptSpinLock.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\IoctlDispatcher.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\processorLock.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\utils\processorUtil.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\ResourceLock.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\utils\utils.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehlib.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehlibcpp.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehVectorConstructor.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\ehVectorDestructor.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\frameHandler.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\NTDDKthrowException.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\XDK\ehlib\typeInfo.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\MemorySuperblockHeapManager.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\SmallMemoryHeapManager.cpp" />
+    <ClCompile Include="$(XDK_PATH)\Source\Xdk\memory\SuperiorMemoryManager.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Locks\GlobalSystemLock.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Locks\RecursiveProtector.cpp" />
+    <ClCompile Include="Source\XDK\hooker\ProcessorsThread.cpp" />
+    <ClCompile Include="Source\XDK\hooker\ProcessorsThreadManager.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\descriptorTable.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\hookIdt.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\idt.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtHookerManager.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtRouterHooker.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\IdtTableHooker.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\InterruptException.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\idt\InterrutpListener.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\Intel386Utils.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\MemoryManager.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\PageTable\PageTable386.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\PageTable\Win32PageTable386.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\Patchers\CodePatcher386.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\segments.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\StackObject386.cpp" />
+    <ClCompile Include="Source\XDK\hooker\Processors\ia32\tss.cpp" />
+    <ClCompile Include="Source\XDK\hooker\SafeMemoryAccesser.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\atexit.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\device.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driver.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driverException.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\driverFactory.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\kernel.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\libCPP.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\undocumented.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\undocumentedStructs.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\unicodeString.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\xdkTrace.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\xdkTraceSingleton.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDevice.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDeviceControls.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\consoleDeviceIoctl.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\exitCounter.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\interruptSpinLock.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\IoctlDispatcher.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\IoctlListener.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\processorLock.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\utils\processorUtil.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\ResourceLock.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\utils.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\ehlib\ehlib.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\ehlib\ehlibcpp.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\MemoryLockableObject.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\MemorySuperblockHeapManager.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SmallMemoryHeapManager.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SuperiorMemoryManager.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\Xdk\memory\SuperiorMemoryManagerInterface.h" />
+    <ClInclude Include="$(XDK_PATH)\Include\XDK\utils\bugcheck.h" />
+    <ClInclude Include="Include\XDK\hooker\CodePatcher.h" />
+    <ClInclude Include="Include\XDK\hooker\Locks\GlobalSystemLock.h" />
+    <ClInclude Include="Include\XDK\hooker\Locks\RecursiveProtector.h" />
+    <ClInclude Include="Include\XDK\hooker\MemoryManager.h" />
+    <ClInclude Include="Include\XDK\hooker\ProcessorsThread.h" />
+    <ClInclude Include="Include\XDK\hooker\ProcessorsThreadManager.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\descriptorTable.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\eflags.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\hookIdt.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\idt.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtHookerManager.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtRouterHooker.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\IdtTableHooker.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\InterruptException.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\idt\InterruptListener.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\Intel386Utils.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\PageTable\PageTable386.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\PageTable\Win32PageTable386.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\registers.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\segments.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\tss32.h" />
+    <ClInclude Include="Include\XDK\hooker\Processors\ia32\Win386Lock.h" />
+    <ClInclude Include="Include\XDK\hooker\SafeMemoryAccesser.h" />
+    <ClInclude Include="Include\XDK\hooker\StackObject.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

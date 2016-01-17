@@ -1,0 +1,39 @@
+/*
+ * Interface PcSpeaker
+ *
+ * Declare the PcSpeaker class. This class provieds the abstraction of the
+ * PcSpeaker sreatrm device functions. The class contains the basic
+ * functionality of the pc-speaker device.
+ *
+ * Author: Elad Raz <e@eladraz.com>
+ */
+[
+    // The IOCTL_PLAYER_xxx  prefix
+    prefix("PLAYER"),
+    base(0x900),
+    helpstring("Basic speaker device class. Handles the features of the PC-Speaker")
+]
+interface PcSpeaker
+{
+    comment("Activate the sound signal.");
+    void soundOn();
+
+    comment("Stop the sound signal.");
+    void soundOff();
+
+    comment("Change the frequency of the timer chip 8254 The timer connected");
+    comment("to the speaker and transfer a sinus wave to the speaker.");
+    comment("The frequency is from 10Hz to 119250Hz.");
+    comment("");
+    comment("frequency - The number of times when 1 puls will be heard.");
+    void setFrequency([in] uint32 frequency);
+
+    comment("This method change the 8254 channel 2 counter to generate a");
+    comment("single impulse for a short prioed of time.");
+    comment("");
+    comment("counter - Number of counts to pass over them. The frequency");
+    comment("          of the chip is 119250Hz. This number is the length");
+    comment("          of the out signal. The counter is limited to the");
+    comment("          low 16bit.");
+    void makeImpulse([in] uint32 counter);
+};
